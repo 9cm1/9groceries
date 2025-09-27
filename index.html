@@ -1360,11 +1360,10 @@
         }
     </script>
 <script>
-    // Register Service Worker
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js')
-            .then(registration => console.log('SW registered successfully'))
-            .catch(error => console.log('SW registration failed: ', error));
+        navigator.serviceWorker.register('/9groceries/sw.js')
+            .then(registration => console.log('SW registered'))
+            .catch(error => console.log('SW failed: ', error));
     }
 </script>
 </body>
