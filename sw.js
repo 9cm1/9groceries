@@ -1,4 +1,4 @@
-const CACHE_NAME = 'campus-cart-v1';
+const CACHE_NAME = 'campus-cart-v2';
 const urlsToCache = [
   '/campuscart/',
   '/campuscart/index.html',
