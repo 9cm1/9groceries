@@ -1393,10 +1393,19 @@
         }
     </script>
 <script>
-// Unregister any existing service workers
+// COMPLETELY REMOVE SERVICE WORKER
 if ('serviceWorker' in navigator) {
+  // Unregister all service workers
   navigator.serviceWorker.getRegistrations().then(registrations => {
     registrations.forEach(registration => registration.unregister());
+    console.log('All service workers unregistered');
+  });
+  
+  // Clear all caches
+  caches.keys().then(cacheNames => {
+    cacheNames.forEach(cacheName => {
+      caches.delete(cacheName);
+    });
   });
 }
 </script>
