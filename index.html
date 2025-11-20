@@ -1488,57 +1488,23 @@
         }
     </script>
  <script>
-// AUTO-UPDATE SYSTEM FOR CAMPUS CART
+// AUTO-UPDATE SYSTEM
 if ('serviceWorker' in navigator) {
-  // Register service worker
   navigator.serviceWorker.register('/sw.js')
     .then(registration => {
-      console.log('✅ Service Worker registered');
-      
-      // Check for updates immediately
       registration.update();
-      
-      // Listen for new service worker (update detected)
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
-        console.log('🆕 New Service Worker detected!');
-        
         newWorker.addEventListener('statechange', () => {
-          console.log('🔄 Service Worker state:', newWorker.state);
-          
           if (newWorker.state === 'installed') {
-            // New version is ready to activate
-            console.log('🎯 New version ready!');
-            
-            // Show update notification to user
-            if (confirm('🆕 New version of Campus Cart available! Reload to get the latest features?')) {
+            if (confirm('🆕 New version available! Reload?')) {
               window.location.reload();
             }
           }
         });
       });
-    })
-    .catch(error => {
-      console.log('❌ Service Worker registration failed:', error);
     });
-
-  // Check for updates every time user comes back to the app
-  window.addEventListener('focus', () => {
-    navigator.serviceWorker.ready.then(registration => {
-      registration.update();
-    });
-  });
 }
-
-// Optional: Check for updates every 30 minutes
-setInterval(() => {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then(registration => {
-      console.log('⏰ Periodic update check...');
-      registration.update();
-    });
-  }
-}, 30 * 60 * 1000); // 30 minutes
 </script>
 </body>
 </html>
