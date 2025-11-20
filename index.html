@@ -1487,17 +1487,22 @@
             window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
         }
     </script>
- <script>
-// AUTO-UPDATE SYSTEM
+<script>
+// Auto-update system
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
     .then(registration => {
+      console.log('✅ Service Worker registered');
+      
+      // Check for updates
       registration.update();
+      
+      // Listen for new versions
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed') {
-            if (confirm('🆕 New version available! Reload?')) {
+            if (confirm('🆕 New version available! Reload to update?')) {
               window.location.reload();
             }
           }
