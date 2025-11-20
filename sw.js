@@ -1,26 +1,26 @@
-// sw.js - AUTO-CACHE IMAGES VERSION
-const CACHE_NAME = 'campus-cart-' + Date.now();
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
-  // NO NEED to list all images manually!
-];
+// sw.js - SIMPLE & RELIABLE
+const CACHE_NAME = 'campus-cart-v1';
 
-// Install - cache essential files
+// Install - cache only the essential app files
 self.addEventListener('install', event => {
   console.log('🚀 Service Worker installing...');
-  self.skipWaiting();
+  self.skipWaiting(); // Activate immediately
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+      .then(cache => cache.addAll([
+        '/',
+        '/index.html',
+        '/manifest.json',
+        '/icons/icon-192.png',
+        '/icons/icon-512.png'
+        // NOTE: We're NOT caching product images here
+      ]))
   );
 });
 
 // Activate - clean up old caches
 self.addEventListener('activate', event => {
+  console.log('🔄 Service Worker activating...');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -33,46 +33,23 @@ self.addEventListener('activate', event => {
       );
     })
   );
-  self.clients.claim();
+  self.clients.claim(); // Take control immediately
 });
 
-// Fetch - SMART IMAGE CACHING
+// Fetch - SMART HANDLING
 self.addEventListener('fetch', event => {
-  // Handle image requests specially
+  // FOR IMAGES: Always go directly to network (no caching)
   if (event.request.destination === 'image') {
-    event.respondWith(
-      caches.open(CACHE_NAME).then(cache => {
-        return cache.match(event.request).then(cachedResponse => {
-          if (cachedResponse) {
-            console.log('🖼️ Serving cached image:', event.request.url);
-            return cachedResponse;
-          }
-          
-          // Not in cache - fetch, cache, and return
-          return fetch(event.request).then(networkResponse => {
-            cache.put(event.request, networkResponse.clone());
-            console.log('💾 Caching new image:', event.request.url);
-            return networkResponse;
-          }).catch(error => {
-            console.log('❌ Image fetch failed:', event.request.url);
-            // Return a placeholder image or just let it fail
-            return new Response('Image not available', { 
-              status: 404,
-              statusText: 'Image not found' 
-            });
-          });
-        });
-      })
-    );
+    event.respondWith(fetch(event.request));
     return;
   }
   
-  // For non-image requests - Network First strategy
+  // FOR APP FILES: Network first, then cache
   event.respondWith(
     fetch(event.request)
       .then(response => {
-        // Cache successful responses (except images - we handle them above)
-        if (response.status === 200 && event.request.url.startsWith('http')) {
+        // Cache successful responses (except images)
+        if (response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME)
             .then(cache => cache.put(event.request, responseClone));
@@ -80,8 +57,8 @@ self.addEventListener('fetch', event => {
         return response;
       })
       .catch(() => {
-        return caches.match(event.request)
-          .then(cachedResponse => cachedResponse || new Response('Offline'));
+        // Network failed - try cache
+        return caches.match(event.request);
       })
   );
 });
